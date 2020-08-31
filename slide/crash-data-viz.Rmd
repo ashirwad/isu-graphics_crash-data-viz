@@ -48,6 +48,14 @@ basemap <- fatal_crashes_2019 %>%
   addHomeButton(ext = st_bbox(state_boundary), group = "Zoom to Iowa")
 ```
 
+---
+# Fatal crashes as a heatmap
 
+```{r heatmap, out.width = "100%"}
+(
+heatmap <- basemap %>%
+  addHeatmap(radius = 10)
+)
+```
 
 

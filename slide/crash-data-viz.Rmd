@@ -1,0 +1,53 @@
+---
+title: "Different Approaches to Crash Data Visualization"
+author: "Ashirwad Barnwal"
+date: "8/30/2020"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include = FALSE}
+# Set global options
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+options(htmltools.dir.version = FALSE)
+
+# Load packages
+library(conflicted)
+library(here)
+library(tidyverse)
+conflict_prefer("filter", "dplyr")
+library(rio)
+library(USAboundaries)
+library(sf)
+library(leaflet)
+library(leaflet.extras)
+library(mapview)
+library(leafem)
+library(raster)
+
+# Import crash data
+fatal_crashes <- import(here("data", "ia-fatal-crashes-2015-19.rds"))
+fatal_crashes_2019 <- filter(fatal_crashes, crash_year == 2019)
+
+# Iowa state & county boundaries
+state_boundary <- st_geometry(us_states(resolution = "high", states = "IA"))
+county_boundaries <- st_geometry(
+  us_counties(resolution = "high", states = "IA")
+)
+
+# Create a basemap
+basemap <- fatal_crashes_2019 %>%
+  leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(data = state_boundary, fill = FALSE, group = "Boundaries") %>%
+  addHomeButton(ext = st_bbox(state_boundary), group = "Zoom to Iowa")
+```
+
+
+
+

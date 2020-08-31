@@ -49,6 +49,16 @@ basemap <- fatal_crashes_2019 %>%
 ```
 
 ---
+# Fatal crashes as circles
+
+```{r circles, out.width = "100%"}
+(
+circles <- basemap %>%
+  addCircles()
+)
+```
+
+---
 # Fatal crashes as a heatmap
 
 ```{r heatmap, out.width = "100%"}
@@ -57,5 +67,6 @@ heatmap <- basemap %>%
   addHeatmap(radius = 10)
 )
 ```
+
 
 

@@ -22,17 +22,23 @@ library(here)
 library(tidyverse)
 conflict_prefer("filter", "dplyr")
 library(rio)
+library(lubridate)
 library(USAboundaries)
 library(sf)
 library(leaflet)
 library(leaflet.extras)
 library(mapview)
 library(leafem)
+library(leafsync)
 library(knitr)
 
 # Import crash data
 fatal_crashes <- import(here("data", "ia-fatal-crashes-2015-19.rds"))
-fatal_crashes_2019 <- filter(fatal_crashes, crash_year == 2019)
+fatal_crashes_2019 <- filter(fatal_crashes, crash_year == 2019) %>%
+  mutate(
+    month = month(crash_date),
+    season = if_else(month %in% c(5:10), "summer", "winter")
+  )
 
 # Iowa state & county boundaries
 state_boundary <- st_geometry(us_states(resolution = "high", states = "IA"))
@@ -41,8 +47,7 @@ county_boundaries <- st_geometry(
 )
 
 # Create a basemap
-basemap <- fatal_crashes_2019 %>%
-  leaflet() %>%
+basemap <- leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addPolygons(data = state_boundary, fill = FALSE, group = "Boundaries") %>%
   addHomeButton(ext = st_bbox(state_boundary), group = "Zoom to Iowa")
@@ -68,7 +73,7 @@ include_url("https://rstudio.github.io/leaflet/", height = "475px")
 ```{r circles, out.width = "100%"}
 (
 circles <- basemap %>%
-  addCircles()
+  addCircles(data = fatal_crashes_2019)
 )
 ```
 
@@ -78,7 +83,9 @@ circles <- basemap %>%
 ```{r marker-clusters, out.width = "100%"}
 (
 marker_clusters <- basemap  %>%
-  addCircleMarkers(clusterOptions = markerClusterOptions())
+  addCircleMarkers(
+    data = fatal_crashes_2019, clusterOptions = markerClusterOptions()
+  )
 )
 ```
 
@@ -88,7 +95,7 @@ marker_clusters <- basemap  %>%
 ```{r heatmap, out.width = "100%"}
 (
 heatmap <- basemap %>%
-  addHeatmap(radius = 10)
+  addHeatmap(data = fatal_crashes_2019, radius = 10)
 )
 ```
 
@@ -128,13 +135,18 @@ choropleth <- basemap %>%
 )
 ```
 
+---
+# Synced heatmaps of summer (L) vs. winter (R) fatal crashes
 
-
-
-
-
-
-
-
+```{r synced_heatmaps, out.width = "100%"}
+heatmap_summer <- basemap %>%
+  addHeatmap(data = filter(fatal_crashes_2019, season == "summer"), radius = 10)
+heatmap_winter <- basemap %>%
+  addHeatmap(data = filter(fatal_crashes_2019, season == "winter"), radius = 10)
+  
+(
+synced_heatmaps <- sync(heatmap_summer, heatmap_winter)
+)
+```
 
 

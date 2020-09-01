@@ -78,5 +78,49 @@ heatmap <- basemap %>%
 )
 ```
 
+---
+# Fatal crashes as a choropleth map
+
+```{r choropleth, out.width = "100%"}
+# Find the number of fatal crashes by county
+fatal_crashes_2019_by_county <- county_boundaries %>%
+  st_as_sf() %>%
+  mutate(n_crashes = lengths(st_contains(., fatal_crashes_2019)))
+
+# Define color palette
+color_pal <- colorBin(
+  "viridis",
+  domain = fatal_crashes_2019_by_county$n_crashes, 
+  bins = c(0, 5, 10, 20, 30, Inf)
+)
+
+# Create the choropleth map
+(
+choropleth <- basemap %>%
+  addPolygons(
+    data = fatal_crashes_2019_by_county,
+    color = "white",
+    weight = 1.5,
+    opacity = 0.75,
+    fillColor = ~color_pal(n_crashes), 
+    fillOpacity = 0.75,
+    dashArray = "2"
+  ) %>%
+    addLegend(
+      data = fatal_crashes_2019_by_county, 
+      pal = color_pal,
+      values = ~n_crashes
+    )
+)
+```
+
+
+
+
+
+
+
+
+
 
 

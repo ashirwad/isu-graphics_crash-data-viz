@@ -59,6 +59,16 @@ circles <- basemap %>%
 ```
 
 ---
+# Fatal crashes as marker clusters
+
+```{r marker-clusters, out.width = "100%"}
+(
+marker_clusters <- basemap  %>%
+  addCircleMarkers(clusterOptions = markerClusterOptions())
+)
+```
+
+---
 # Fatal crashes as a heatmap
 
 ```{r heatmap, out.width = "100%"}

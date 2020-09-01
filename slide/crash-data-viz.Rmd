@@ -149,4 +149,22 @@ synced_heatmaps <- sync(heatmap_summer, heatmap_winter)
 )
 ```
 
+---
+# Desynced map of fatal crashes
+
+```{r lattice-view, out.width = "100%"}
+(
+lattice_view <- latticeview(marker_clusters, marker_clusters)
+)
+```
+
+
+
+
+
+
+
+
+
+
 

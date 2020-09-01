@@ -28,7 +28,7 @@ library(leaflet)
 library(leaflet.extras)
 library(mapview)
 library(leafem)
-library(raster)
+library(knitr)
 
 # Import crash data
 fatal_crashes <- import(here("data", "ia-fatal-crashes-2015-19.rds"))
@@ -46,6 +46,20 @@ basemap <- fatal_crashes_2019 %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addPolygons(data = state_boundary, fill = FALSE, group = "Boundaries") %>%
   addHomeButton(ext = st_bbox(state_boundary), group = "Zoom to Iowa")
+```
+
+---
+# What is Leaflet?
+
+```{r leaflet-url}
+include_url("https://leafletjs.com/", height = "475px")
+```
+
+---
+# Leaflet for R
+
+```{r leaflet-rstudio-url}
+include_url("https://rstudio.github.io/leaflet/", height = "475px")
 ```
 
 ---

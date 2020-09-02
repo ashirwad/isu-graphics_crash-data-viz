@@ -293,6 +293,56 @@ mini_circles_animation <- basemap %>%
 ```
 
 ---
+# Data viz type: Animated mini pie charts
+
+```{r mini-pies-animation, out.width = "100%"}
+# Compute 2019 fatal crashes by month and type of day for each county
+fatal_crash_counts_by_county_2019[["by_month_daytype"]] <- fatal_crashes_2019 %>%
+  mutate(
+    crash_month = format_ISO8601(crash_date, precision = "ym"),
+    day_type = if_else(is_weekend == FALSE, "weekday", "weekend")
+  ) %>%
+  st_join(county_boundaries, st_within) %>%
+  count(name, crash_month, day_type) %>%
+  rename(n_crashes = n) %>%
+  st_drop_geometry() %>%
+  pivot_wider(names_from = day_type, values_from = n_crashes)
+
+# Create data for generating mini pie charts animation
+mini_pies_anim_data <- county_centroids %>%
+  left_join(
+    pluck(fatal_crash_counts_by_county_2019, "by_month"), by = "name"
+  ) %>%
+  left_join(
+    pluck(fatal_crash_counts_by_county_2019, "by_month_daytype"), 
+    by = c("name", "crash_month")
+  ) %>%
+  right_join(helper_data, by = c("name", "crash_month")) %>%
+  arrange(name, crash_month) %>%
+  group_by(name) %>%
+  fill(lng, lat, .direction = "updown") %>%
+  ungroup() %>%
+  replace_na(list(n_crashes = 0, weekday = 0, weekend = 0))
+
+# Display the animation
+(
+mini_pies_animation <- basemap %>%
+  addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
+  addMinicharts(
+    mini_pies_anim_data$lng, 
+    mini_pies_anim_data$lat,
+    chartdata = select(mini_pies_anim_data, weekday, weekend),
+    time = mini_pies_anim_data$crash_month,
+    type = "pie",
+    colorPalette = plasma(6)[c(2, 5)],
+    width = 30 * sqrt(mini_pies_anim_data$n_crashes) / 
+      sqrt(max(mini_pies_anim_data$n_crashes)),
+    transitionTime = 0
+  )
+)
+```
+
+---
 # Synced heatmaps of summer (L) vs. winter (R) fatal crashes
 
 ```{r synced_heatmaps, out.width = "100%"}

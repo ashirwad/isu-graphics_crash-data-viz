@@ -31,6 +31,7 @@ library(leaflet.minicharts)
 library(mapview)
 library(leafem)
 library(leafsync)
+library(viridisLite)
 library(knitr)
 
 # Import crash data
@@ -45,6 +46,10 @@ fatal_crashes_2019 <- filter(fatal_crashes, crash_year == 2019) %>%
 state_boundary <- st_geometry(us_states(resolution = "high", states = "IA"))
 county_boundaries <- us_counties(resolution = "high", states = "IA") %>%
   select(name)
+cong_district_boundaries <- us_congressional(
+  resolution = "high", states = "IA"
+) %>%
+  select(district_id = cd115fp)
 
 # Create a basemap
 basemap <- leaflet() %>%
@@ -196,6 +201,47 @@ minicharts_pie <- basemap %>%
     width = 30 * sqrt(minicharts_data$n_crashes) / 
       sqrt(max(minicharts_data$n_crashes)),
     transitionTime = 0
+  )
+)
+```
+
+---
+# Map of fatal crashes with mini bar charts
+
+```{r mini-barcharts, out.width = "100%"}
+cong_district_centroids <- st_centroid(cong_district_boundaries) %>%
+  nest(data = geometry) %>%
+  mutate(coords = map(data, ~ as_tibble(st_coordinates(.x)))) %>%
+  unnest(coords) %>%
+  select(district_id, lng = X, lat = Y)
+
+fatal_crash_counts_by_district_2019 <- fatal_crashes_2019 %>%
+  mutate(quarter = quarter(crash_date)) %>%
+  st_join(cong_district_boundaries, st_within) %>%
+  count(district_id, quarter) %>%
+  rename(n_crashes = n) %>%
+  st_drop_geometry()
+
+mini_barcharts_data <- cong_district_centroids %>%
+  left_join(fatal_crash_counts_by_district_2019, by = "district_id") %>%
+  mutate(quarter = str_c("Qtr", quarter, sep = "_")) %>%
+  pivot_wider(names_from = quarter, values_from = n_crashes)
+
+(
+mini_barcharts <- basemap %>%
+  addPolygons(
+    data = cong_district_boundaries, 
+    color = "lightblue", 
+    weight = 2, 
+    fill = FALSE
+  ) %>%
+  addMinicharts(
+    mini_barcharts_data$lng, 
+    mini_barcharts_data$lat,
+    chartdata = select(mini_barcharts_data, Qtr_1:Qtr_4),
+    colorPalette = viridis(4),
+    width = 60, 
+    height = 60
   )
 )
 ```

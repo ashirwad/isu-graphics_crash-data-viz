@@ -247,6 +247,52 @@ mini_barcharts <- basemap %>%
 ```
 
 ---
+# Data viz type: Animated mini circle charts
+
+```{r mini-circles-animation, out.width = "100%"}
+# Create a data frame of 99 counties times 12 months
+helper_data <- tibble(
+  name = rep(unique(county_boundaries$name), each = 12), 
+  crash_month = rep(
+    str_c(2019, str_pad(1:12, 2, pad = 0), sep = "-"), times = 99
+  )
+)
+
+# Compute 2019 fatal crashes by month for each county
+fatal_crash_counts_by_county_2019[["by_month"]] <- fatal_crashes_2019 %>%
+  mutate(crash_month = format_ISO8601(crash_date, precision = "ym")) %>%
+  st_join(county_boundaries, st_within) %>%
+  count(name, crash_month) %>%
+  rename(n_crashes = n) %>%
+  st_drop_geometry()
+
+# Create data for generating mini circle charts animation
+mini_circles_anim_data <- county_centroids %>%
+  left_join(
+    pluck(fatal_crash_counts_by_county_2019, "by_month"), by = "name"
+  ) %>%
+  right_join(helper_data, by = c("name", "crash_month")) %>%
+  arrange(name, crash_month) %>%
+  group_by(name) %>%
+  fill(lng, lat, .direction = "updown") %>%
+  ungroup() %>%
+  replace_na(list(n_crashes = 0))
+
+# Display the animation
+(
+mini_circles_animation <- basemap %>%
+  addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
+  addMinicharts(
+    mini_circles_anim_data$lng, 
+    mini_circles_anim_data$lat,
+    chartdata = mini_circles_anim_data$n_crashes,
+    time = mini_circles_anim_data$crash_month,
+    showLabels = TRUE
+  )
+)
+```
+
+---
 # Synced heatmaps of summer (L) vs. winter (R) fatal crashes
 
 ```{r synced_heatmaps, out.width = "100%"}

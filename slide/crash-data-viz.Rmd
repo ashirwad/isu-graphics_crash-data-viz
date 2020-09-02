@@ -181,6 +181,26 @@ minicharts_single_var <- basemap %>%
 ```
 
 ---
+# Map of fatal crashes with mini pie charts
+
+```{r minicharts-pie, out.width = "100%"}
+(
+minicharts_pie <- basemap %>%
+  addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
+  addMinicharts(
+    minicharts_data$lng, 
+    minicharts_data$lat,
+    chartdata = select(minicharts_data, summer, winter),
+    type = "pie",
+    colorPalette = c("#4fc13c", "#cccccc"),
+    width = 30 * sqrt(minicharts_data$n_crashes) / 
+      sqrt(max(minicharts_data$n_crashes)),
+    transitionTime = 0
+  )
+)
+```
+
+---
 # Synced heatmaps of summer (L) vs. winter (R) fatal crashes
 
 ```{r synced_heatmaps, out.width = "100%"}

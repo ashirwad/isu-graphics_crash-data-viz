@@ -27,6 +27,7 @@ library(USAboundaries)
 library(sf)
 library(leaflet)
 library(leaflet.extras)
+library(leaflet.minicharts)
 library(mapview)
 library(leafem)
 library(leafsync)
@@ -42,9 +43,8 @@ fatal_crashes_2019 <- filter(fatal_crashes, crash_year == 2019) %>%
 
 # Iowa state & county boundaries
 state_boundary <- st_geometry(us_states(resolution = "high", states = "IA"))
-county_boundaries <- st_geometry(
-  us_counties(resolution = "high", states = "IA")
-)
+county_boundaries <- us_counties(resolution = "high", states = "IA") %>%
+  select(name)
 
 # Create a basemap
 basemap <- leaflet() %>%
@@ -105,7 +105,6 @@ heatmap <- basemap %>%
 ```{r choropleth, out.width = "100%"}
 # Find the number of fatal crashes by county
 fatal_crashes_2019_by_county <- county_boundaries %>%
-  st_as_sf() %>%
   mutate(n_crashes = lengths(st_contains(., fatal_crashes_2019)))
 
 # Define color palette
@@ -136,6 +135,52 @@ choropleth <- basemap %>%
 ```
 
 ---
+# Fatal crashes as a minicharts map
+
+```{r minicharts-single-var, out.width = "100%"}
+# Find centroids of each county
+county_centroids <- st_centroid(county_boundaries) %>%
+  nest(data = geometry) %>%
+  mutate(coords = map(data, ~ as_tibble(st_coordinates(.x)))) %>%
+  unnest(coords) %>%
+  select(name, lng = X, lat = Y)
+
+# Compute fatal crash counts
+fatal_crash_counts_by_county_2019 <- list(
+  # overall counts
+  overall = fatal_crashes_2019 %>%
+    st_join(county_boundaries, st_within) %>%
+    count(name) %>%
+    rename(n_crashes = n) %>%
+    st_drop_geometry(),
+  # broken by season
+  by_season = fatal_crashes_2019 %>%
+    st_join(county_boundaries, st_within) %>%
+    count(name, season) %>%
+    rename(n_crashes = n) %>%
+    st_drop_geometry() %>%
+    pivot_wider(names_from = season, values_from = n_crashes)
+)
+
+# Create a leaflet map with minicharts
+minicharts_data <- county_centroids %>%
+  left_join(fatal_crash_counts_by_county_2019$overall, by = "name") %>%
+  left_join(fatal_crash_counts_by_county_2019$by_season, by = "name") %>%
+  replace_na(list(n_crashes = 0, summer = 0, winter = 0))
+
+(
+minicharts_single_var <- basemap %>%
+  addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
+  addMinicharts(
+    minicharts_data$lng, 
+    minicharts_data$lat,
+    chartdata = minicharts_data$n_crashes,
+    showLabels = TRUE
+  )
+)
+```
+
+---
 # Synced heatmaps of summer (L) vs. winter (R) fatal crashes
 
 ```{r synced_heatmaps, out.width = "100%"}
@@ -154,7 +199,7 @@ synced_heatmaps <- sync(heatmap_summer, heatmap_winter)
 
 ```{r lattice-view, out.width = "100%"}
 (
-lattice_view <- latticeview(marker_clusters, marker_clusters)
+lattice_view <- latticeview(heatmap, heatmap)
 )
 ```
 

@@ -31,6 +31,7 @@ library(leaflet.minicharts)
 library(mapview)
 library(leafem)
 library(leafsync)
+library(widgetframe)
 library(viridisLite)
 library(knitr)
 
@@ -249,7 +250,7 @@ mini_barcharts <- basemap %>%
 ---
 # Data viz type: Animated mini circle charts
 
-```{r mini-circles-animation, out.width = "100%"}
+```{r mini-circles-animation}
 # Create a data frame of 99 counties times 12 months
 helper_data <- tibble(
   name = rep(unique(county_boundaries$name), each = 12), 
@@ -279,7 +280,6 @@ mini_circles_anim_data <- county_centroids %>%
   replace_na(list(n_crashes = 0))
 
 # Display the animation
-(
 mini_circles_animation <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
   addMinicharts(
@@ -288,14 +288,15 @@ mini_circles_animation <- basemap %>%
     chartdata = mini_circles_anim_data$n_crashes,
     time = mini_circles_anim_data$crash_month,
     showLabels = TRUE
-  )
-)
+  ) %>%
+  syncWith("minicharts")
+frameWidget(mini_circles_animation, height = 500)
 ```
 
 ---
 # Data viz type: Animated mini pie charts
 
-```{r mini-pies-animation, out.width = "100%"}
+```{r mini-pies-animation}
 # Compute 2019 fatal crashes by month and type of day for each county
 fatal_crash_counts_by_county_2019[["by_month_daytype"]] <- fatal_crashes_2019 %>%
   mutate(
@@ -325,7 +326,6 @@ mini_pies_anim_data <- county_centroids %>%
   replace_na(list(n_crashes = 0, weekday = 0, weekend = 0))
 
 # Display the animation
-(
 mini_pies_animation <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
   addMinicharts(
@@ -338,9 +338,29 @@ mini_pies_animation <- basemap %>%
     width = 30 * sqrt(mini_pies_anim_data$n_crashes) / 
       sqrt(max(mini_pies_anim_data$n_crashes)),
     transitionTime = 0
-  )
-)
+  ) %>%
+  syncWith("minicharts")
+frameWidget(mini_pies_animation, height = 500)
 ```
+
+---
+# Data viz type: Side-by-Side mini circle charts
+
+.pull-left[
+
+```{r mini-circles-anim-left}
+frameWidget(mini_circles_animation, height = 500)
+```
+
+]
+
+.pull-right[
+
+```{r mini-circles-anim-right}
+frameWidget(mini_circles_animation, height = 500)
+```
+
+]
 
 ---
 # Synced heatmaps of summer (L) vs. winter (R) fatal crashes
@@ -364,13 +384,6 @@ synced_heatmaps <- sync(heatmap_summer, heatmap_winter)
 lattice_view <- latticeview(heatmap, heatmap)
 )
 ```
-
-
-
-
-
-
-
 
 
 

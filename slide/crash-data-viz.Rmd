@@ -296,9 +296,9 @@ lattice_view <- latticeview(heatmap, heatmap)
 ```
 
 ---
-# Fatal crashes as a choropleth map
+# Map with a choropleth layer
 
-```{r choropleth, out.width = "100%"}
+```{r choropleth}
 # Find the number of fatal crashes by county
 fatal_crashes_2019_by_county <- county_boundaries %>%
   mutate(n_crashes = lengths(st_contains(., fatal_crashes_2019)))
@@ -311,7 +311,6 @@ color_pal <- colorBin(
 )
 
 # Create the choropleth map
-(
 choropleth <- basemap %>%
   addPolygons(
     data = fatal_crashes_2019_by_county,
@@ -327,13 +326,13 @@ choropleth <- basemap %>%
       pal = color_pal,
       values = ~n_crashes
     )
-)
+frameWidget(choropleth)
 ```
 
 ---
-# Fatal crashes as a minicharts map
+# Map with mini circle charts
 
-```{r minicharts-single-var, out.width = "100%"}
+```{r minicharts-single-var}
 # Find centroids of each county
 county_centroids <- st_centroid(county_boundaries) %>%
   nest(data = geometry) %>%
@@ -364,7 +363,6 @@ minicharts_data <- county_centroids %>%
   left_join(fatal_crash_counts_by_county_2019$by_season, by = "name") %>%
   replace_na(list(n_crashes = 0, summer = 0, winter = 0))
 
-(
 minicharts_single_var <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
   addMinicharts(
@@ -373,14 +371,13 @@ minicharts_single_var <- basemap %>%
     chartdata = minicharts_data$n_crashes,
     showLabels = TRUE
   )
-)
+frameWidget(minicharts_single_var)
 ```
 
 ---
-# Map of fatal crashes with mini pie charts
+# Map with mini pie charts
 
-```{r minicharts-pie, out.width = "100%"}
-(
+```{r minicharts-pie}
 minicharts_pie <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
   addMinicharts(
@@ -393,13 +390,13 @@ minicharts_pie <- basemap %>%
       sqrt(max(minicharts_data$n_crashes)),
     transitionTime = 0
   )
-)
+frameWidget(minicharts_pie)
 ```
 
 ---
-# Map of fatal crashes with mini bar charts
+# Map with mini bar charts
 
-```{r mini-barcharts, out.width = "100%"}
+```{r mini-barcharts}
 cong_district_centroids <- st_centroid(cong_district_boundaries) %>%
   nest(data = geometry) %>%
   mutate(coords = map(data, ~ as_tibble(st_coordinates(.x)))) %>%
@@ -418,7 +415,6 @@ mini_barcharts_data <- cong_district_centroids %>%
   mutate(quarter = str_c("Qtr", quarter, sep = "_")) %>%
   pivot_wider(names_from = quarter, values_from = n_crashes)
 
-(
 mini_barcharts <- basemap %>%
   addPolygons(
     data = cong_district_boundaries, 
@@ -434,11 +430,11 @@ mini_barcharts <- basemap %>%
     width = 60, 
     height = 60
   )
-)
+frameWidget(mini_barcharts)
 ```
 
 ---
-# Data viz type: Animated mini circle charts
+# Animated map with mini circle charts
 
 ```{r mini-circles-animation}
 # Create a data frame of 99 counties times 12 months
@@ -480,11 +476,12 @@ mini_circles_animation <- basemap %>%
     showLabels = TRUE
   ) %>%
   syncWith("minicharts")
-frameWidget(mini_circles_animation, height = 500)
+frameWidget(mini_circles_animation)
 ```
 
 ---
-# Data viz type: Animated mini pie charts
+# Animated map with mini pie charts
+Weekday vs. Weekend fatal crashes
 
 ```{r mini-pies-animation}
 # Compute 2019 fatal crashes by month and type of day for each county
@@ -530,16 +527,17 @@ mini_pies_animation <- basemap %>%
     transitionTime = 0
   ) %>%
   syncWith("minicharts")
-frameWidget(mini_pies_animation, height = 500)
+frameWidget(mini_pies_animation, height = 450)
 ```
 
 ---
-# Data viz type: Side-by-Side mini circle charts
+# Animated map with side-by-side mini circle charts
+Same mini circle charts on both panes:
 
 .pull-left[
 
 ```{r mini-circles-anim-left}
-frameWidget(mini_circles_animation, height = 500)
+frameWidget(mini_circles_animation, height = 400)
 ```
 
 ]
@@ -547,13 +545,13 @@ frameWidget(mini_circles_animation, height = 500)
 .pull-right[
 
 ```{r mini-circles-anim-right}
-frameWidget(mini_circles_animation, height = 500)
+frameWidget(mini_circles_animation, height = 400)
 ```
 
 ]
 
 ---
-# Data viz type: Side-by-Side circle & pie minicharts
+# Animated map with side-by-side circle & pie minicharts
 
 .pull-left[
 

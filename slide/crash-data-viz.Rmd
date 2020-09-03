@@ -192,13 +192,12 @@ frameWidget(marker_clusters)
 ```
 
 ---
-# Fatal crashes as a heatmap
+# Map with a heatmap layer
 
-```{r heatmap, out.width = "100%"}
-(
+```{r heatmap}
 heatmap <- basemap %>%
   addHeatmap(data = fatal_crashes_2019, radius = 10)
-)
+frameWidget(heatmap)
 ```
 
 ---

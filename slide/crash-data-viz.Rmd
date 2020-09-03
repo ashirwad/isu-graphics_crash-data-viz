@@ -181,15 +181,14 @@ frameWidget(circles_minimap)
 ```
 
 ---
-# Fatal crashes as marker clusters
+# Map with marker clusters
 
-```{r marker-clusters, out.width = "100%"}
-(
+```{r marker-clusters}
 marker_clusters <- basemap  %>%
   addCircleMarkers(
     data = fatal_crashes_2019, clusterOptions = markerClusterOptions()
   )
-)
+frameWidget(marker_clusters)
 ```
 
 ---

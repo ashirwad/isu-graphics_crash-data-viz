@@ -34,6 +34,9 @@ library(leafsync)
 library(widgetframe)
 library(viridisLite)
 library(knitr)
+library(DT)
+library(default)
+default(frameWidget) <- list(height = 500)
 library(fontawesome)
 library(emo)
 
@@ -114,6 +117,15 @@ End here:
 ]
 
 ---
+class: center, inverse, middle
+
+Enough of comic...  
+Let's get started with some serious data visualization!
+
+![serious](https://media4.giphy.com/media/Fr51PdEf2NxOE/giphy.gif)  
+<div style='font-size:50%'>(Available at [http://gph.is/1qKXewI](http://gph.is/1qKXewI), Sep 02, 2020)</div>  
+
+---
 # What is Leaflet?
 
 ```{r leaflet-url}
@@ -128,13 +140,35 @@ include_url("https://rstudio.github.io/leaflet/", height = "475px")
 ```
 
 ---
-# Fatal crashes as circles
+# What open data am I using?
 
-```{r circles, out.width = "100%"}
-(
-circles <- basemap %>%
-  addCircles(data = fatal_crashes_2019)
+```{r iowadot-opendata-url}
+include_url("https://public-iowadot.opendata.arcgis.com/", height = "475px")
+```
+
+---
+# Some notes about the data processing
+
+- **Step 1**: Downloaded [crash data](https://data.iowadot.gov/datasets/crash-data-1) from the open data portal. The data has records of all crashes that occurred within Iowa over the last 10 years.
+- **Step 2**: Processed data and extracted 5 years (2015--2019) worth of fatal crashes 
+
+Here's a glimpse of the extracted data set:
+
+```{r fatal-crashes-table}
+fatal_crashes_table <- datatable(
+  head(fatal_crashes), options = list(pageLength = 3)
 )
+frameWidget(fatal_crashes_table)
+```
+
+---
+# Map with circles
+**Note**: Unless stated otherwise, this and subsequent data visualizations uses 2019 fatal crash data to improve leaflet rendering performance.
+
+```{r circles}
+circles <- basemap %>%
+  addCircles(data = fatal_crashes_2019, color = viridis(1))
+frameWidget(circles, height = 450)
 ```
 
 ---

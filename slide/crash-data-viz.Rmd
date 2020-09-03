@@ -23,14 +23,18 @@ library(tidyverse)
 conflict_prefer("filter", "dplyr")
 library(rio)
 library(lubridate)
+
+# Spatial analyses & visualization
 library(USAboundaries)
 library(sf)
 library(leaflet)
 library(leaflet.extras)
+library(leaflet.extras2)
 library(leaflet.minicharts)
 library(mapview)
 library(leafem)
 library(leafsync)
+
 library(widgetframe)
 library(viridisLite)
 library(knitr)
@@ -201,6 +205,18 @@ frameWidget(heatmap)
 ```
 
 ---
+# Map with a hexbin-based heatmap layer
+
+```{r hexbin-heatmap}
+hexbin_heatmap <- basemap %>%
+  addHexbin(
+    data = fatal_crashes_2019, 
+    options = hexbinOptions(colorRange = viridis(3), radiusRange = c(10, 20))
+  )
+frameWidget(hexbin_heatmap)
+```
+
+---
 # Map with layers control 
 
 ```{r overlay-layers-control}
@@ -223,7 +239,7 @@ frameWidget(overlay_layers_control)
 ```
 
 ---
-# Map with both base and overlay layers control
+# Map with base and overlay layers control
 
 ```{r both-layers-control}
 both_layers_control <- basemap %>%

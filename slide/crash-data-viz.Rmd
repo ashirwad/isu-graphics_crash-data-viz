@@ -84,6 +84,15 @@ circles <- basemap %>%
 ```
 
 ---
+# Map with circles and a minimap
+
+```{r circles-minimap}
+circles_minimap <- circles %>%
+  addMiniMap(toggleDisplay = TRUE, tiles = providers$CartoDB.Positron)
+frameWidget(circles_minimap)
+```
+
+---
 # Fatal crashes as marker clusters
 
 ```{r marker-clusters, out.width = "100%"}

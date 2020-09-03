@@ -271,6 +271,31 @@ frameWidget(both_layers_control)
 ```
 
 ---
+# Map with synced heatmap layers
+Summer (L) vs. Winter (R) fatal crashes:
+
+```{r synced-heatmaps}
+heatmap_summer <- basemap %>%
+  addHeatmap(data = filter(fatal_crashes_2019, season == "summer"), radius = 10)
+heatmap_winter <- basemap %>%
+  addHeatmap(data = filter(fatal_crashes_2019, season == "winter"), radius = 10)
+
+(
+synced_heatmaps <- sync(heatmap_summer, heatmap_winter)
+)
+```
+
+---
+# Map with desynced heatmap layers
+Same heatmap on both left & right panes:
+
+```{r lattice-view}
+(
+lattice_view <- latticeview(heatmap, heatmap)
+)
+```
+
+---
 # Fatal crashes as a choropleth map
 
 ```{r choropleth, out.width = "100%"}
@@ -545,30 +570,6 @@ frameWidget(mini_pies_animation, height = 450)
 ```
 
 ]
-
----
-# Synced heatmaps of summer (L) vs. winter (R) fatal crashes
-
-```{r synced_heatmaps, out.width = "100%"}
-heatmap_summer <- basemap %>%
-  addHeatmap(data = filter(fatal_crashes_2019, season == "summer"), radius = 10)
-heatmap_winter <- basemap %>%
-  addHeatmap(data = filter(fatal_crashes_2019, season == "winter"), radius = 10)
-  
-(
-synced_heatmaps <- sync(heatmap_summer, heatmap_winter)
-)
-```
-
----
-# Desynced map of fatal crashes
-
-```{r lattice-view, out.width = "100%"}
-(
-lattice_view <- latticeview(heatmap, heatmap)
-)
-```
-
 
 
 

@@ -223,6 +223,38 @@ frameWidget(overlay_layers_control)
 ```
 
 ---
+# Map with both base and overlay layers control
+
+```{r both-layers-control}
+both_layers_control <- basemap %>%
+  addProviderTiles(providers$CartoDB.Positron, group = "CartoDB.Positron") %>%
+  addProviderTiles(
+    providers$CartoDB.DarkMatter, group = "CartoDB.DarkMatter"
+  ) %>%
+  addProviderTiles(providers$OpenStreetMap, group = "OpenStreetMap") %>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "Esri.WorldImagery") %>%
+  addHeatmap(data = fatal_crashes_2019, radius = 10, group = "Heatmap") %>%
+  addCircles(
+    data = fatal_crashes_2019, color = viridis(1), group = "Circles"
+  ) %>%
+  addCircleMarkers(
+    data = fatal_crashes_2019, 
+    clusterOptions = markerClusterOptions(), 
+    group = "Marker Clusters"
+  ) %>%
+  addMiniMap(toggleDisplay = TRUE, tiles = providers$CartoDB.Positron) %>%
+  addLayersControl(
+    baseGroups = c(
+      "CartoDB.Positron", "CartoDB.DarkMatter", "OpenStreetMap", 
+      "Esri.WorldImagery"
+    ),
+    overlayGroups = c("Circles", "Marker Clusters", "Heatmap"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+frameWidget(both_layers_control)
+```
+
+---
 # Fatal crashes as a choropleth map
 
 ```{r choropleth, out.width = "100%"}

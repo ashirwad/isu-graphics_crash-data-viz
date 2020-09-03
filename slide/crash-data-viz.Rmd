@@ -34,6 +34,8 @@ library(leafsync)
 library(widgetframe)
 library(viridisLite)
 library(knitr)
+library(fontawesome)
+library(emo)
 
 # Import crash data
 fatal_crashes <- import(here("data", "ia-fatal-crashes-2015-19.rds"))
@@ -58,6 +60,37 @@ basemap <- leaflet() %>%
   addPolygons(data = state_boundary, fill = FALSE, group = "Boundaries") %>%
   addHomeButton(ext = st_bbox(state_boundary), group = "Zoom to Iowa")
 ```
+
+---
+# Who am I?
+
+~~No one cared who I was until I put on the mask.~~ `r emo::ji("wink")`
+
+.pull-left[
+
+Brief background:
+
+- 3rd year PhD student in Civil Engineering (Transportation Data Analytics)
+- 2nd year MS student in Statistics (concurrent degree)
+- I took Stat 579 (Intro to R) with Dr. Hofmann in Fall 2018
+
+Connect with me at:
+
+- [`r fa(name = "linkedin")` @ashirwad1992](www.linkedin.com/in/ashirwad1992)
+- [`r fa(name = "paper-plane")` ashirwad1992@gmail.com](mailto:ashirwad1992@gmail.com)
+- [`r fa(name = "github")` @ashirwad](http://github.com/ashirwad)
+
+]
+
+.pull-right[
+
+```{r profile-pic}
+include_graphics("../img/covid-profile-pic.png")
+```
+
+Added mask to my photo using [Kapwing](https://www.kapwing.com/) `r emo::ji("laugh")`
+
+]
 
 ---
 # What is Leaflet?

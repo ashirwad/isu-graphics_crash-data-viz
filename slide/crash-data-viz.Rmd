@@ -363,6 +363,25 @@ frameWidget(mini_circles_animation, height = 500)
 ]
 
 ---
+# Data viz type: Side-by-Side circle & pie minicharts
+
+.pull-left[
+
+```{r mini-circles-anim-left2}
+frameWidget(mini_circles_animation, height = 450)
+```
+
+]
+
+.pull-right[
+
+```{r mini-pies-anim-right}
+frameWidget(mini_pies_animation, height = 450)
+```
+
+]
+
+---
 # Synced heatmaps of summer (L) vs. winter (R) fatal crashes
 
 ```{r synced_heatmaps, out.width = "100%"}

@@ -93,6 +93,27 @@ Added mask to my photo using [Kapwing](https://www.kapwing.com/) `r emo::ji("lau
 ]
 
 ---
+# What's the goal of this presentation?
+
+.pull-left[
+
+Start here:
+
+![classic+animation+choices](https://media0.giphy.com/media/Jyx7xUsUtHSjm/giphy.gif)  
+<div style='font-size:50%'>(Available at [http://gph.is/1bbZpie](http://gph.is/1bbZpie), Sep 02, 2020)</div>  
+
+]
+
+.pull-right[
+
+End here:
+
+![which+one+choices](https://media2.giphy.com/media/Uni2jYCihB3fG/giphy.gif)  
+<div style='font-size:50%'>(Available at [http://gph.is/2alF2tv](http://gph.is/2alF2tv), Sep 02, 2020)</div>  
+
+]
+
+---
 # What is Leaflet?
 
 ```{r leaflet-url}

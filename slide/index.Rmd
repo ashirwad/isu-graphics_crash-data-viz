@@ -1,5 +1,5 @@
 ---
-title: "Different Approaches to Crash Data Visualization using Leaflet"
+title: "Crash Data Visualization using Leaflet"
 author: "Ashirwad Barnwal"
 date: "2020/09/03 (updated: `r Sys.Date()`)"
 output:
@@ -80,7 +80,7 @@ layout: true
 
 ---
 class: center, bottom
-background-image: url(../img/title-cover.png)
+background-image: url(img/title-cover.png)
 background-size: cover
 
 # Crash Data Visualization using Leaflet
@@ -111,7 +111,7 @@ Connect with me at:
 .pull-right[
 
 ```{r profile-pic}
-include_graphics("../img/covid-profile-pic.png")
+include_graphics("img/covid-profile-pic.png")
 ```
 
 Added mask to my photo using [Kapwing](https://www.kapwing.com/) `r emo::ji("laugh")`

@@ -52,6 +52,8 @@ fatal_crashes_2019 <- filter(fatal_crashes, crash_year == 2019) %>%
     season = if_else(month %in% c(5:10), "summer", "winter")
   )
 
+state_boundary <- st_geometry(us_states(resolution = "high", states = "IA"))
+
 # Create a basemap
 basemap <- leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
@@ -290,27 +292,30 @@ lattice_view <- latticeview(heatmap, heatmap)
 # Map with a choropleth layer
 
 ```{r choropleth}
+# Import data for choropleth map
+choropleth_data <- import(here("data", "leaflet-choropleth-data.rds"))
+
 # Define color palette
-color_pal <- colorBin(
+color_n_pal <- colorBin(
   "viridis",
-  domain = fatal_crashes_2019_by_county$n_crashes, 
-  bins = c(0, 5, 10, 20, 30, Inf)
+  domain = choropleth_data$n_crashes,
+  bins = c(0, 5, 10, 15, 20, 30, Inf)
 )
 
 # Create the choropleth map
 choropleth <- basemap %>%
   addPolygons(
-    data = fatal_crashes_2019_by_county,
+    data = choropleth_data,
     color = "white",
     weight = 1.5,
     opacity = 0.75,
-    fillColor = ~color_pal(n_crashes), 
+    fillColor = ~color_n_pal(n_crashes),
     fillOpacity = 0.75,
     dashArray = "2"
   ) %>%
     addLegend(
-      data = fatal_crashes_2019_by_county, 
-      pal = color_pal,
+      data = choropleth_data, 
+      pal = color_n_pal,
       values = ~n_crashes
     )
 frameWidget(choropleth)

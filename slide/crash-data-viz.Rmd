@@ -289,7 +289,7 @@ lattice_view <- latticeview(heatmap, heatmap)
 ```
 
 ---
-# Map with a choropleth layer
+# Map with a choropleth layer (n_crashes)
 
 ```{r choropleth}
 # Import data for choropleth map
@@ -319,6 +319,37 @@ choropleth <- basemap %>%
       values = ~n_crashes
     )
 frameWidget(choropleth)
+```
+
+---
+# Map with a choropleth layer (crash_rate_by_vmt)
+VMT: Vehicle Miles Traveled; Crash rate: Number of crashes per million VMT
+
+```{r choropleth-normed}
+# Define color palette
+color_rate_pal <- colorBin(
+  "viridis",
+  domain = choropleth_data$crash_rate,
+  bins = c(0, 5, 10, 15, 20, 30, Inf)
+)
+
+# Create the choropleth map
+choropleth_normed <- basemap %>%
+  addPolygons(
+    data = choropleth_data,
+    color = "white",
+    weight = 1.5,
+    opacity = 0.75,
+    fillColor = ~color_rate_pal(crash_rate),
+    fillOpacity = 0.75,
+    dashArray = "2"
+  ) %>%
+    addLegend(
+      data = choropleth_data, 
+      pal = color_rate_pal,
+      values = ~crash_rate
+    )
+frameWidget(choropleth_normed, height = 450)
 ```
 
 ---

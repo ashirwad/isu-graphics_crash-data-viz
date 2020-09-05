@@ -1,7 +1,7 @@
 ---
 title: "Different Approaches to Crash Data Visualization"
 author: "Ashirwad Barnwal"
-date: "8/30/2020"
+date: "9/3/2020"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -51,15 +51,6 @@ fatal_crashes_2019 <- filter(fatal_crashes, crash_year == 2019) %>%
     month = month(crash_date),
     season = if_else(month %in% c(5:10), "summer", "winter")
   )
-
-# Iowa state & county boundaries
-state_boundary <- st_geometry(us_states(resolution = "high", states = "IA"))
-county_boundaries <- us_counties(resolution = "high", states = "IA") %>%
-  select(name)
-cong_district_boundaries <- us_congressional(
-  resolution = "high", states = "IA"
-) %>%
-  select(district_id = cd115fp)
 
 # Create a basemap
 basemap <- leaflet() %>%
@@ -299,10 +290,6 @@ lattice_view <- latticeview(heatmap, heatmap)
 # Map with a choropleth layer
 
 ```{r choropleth}
-# Find the number of fatal crashes by county
-fatal_crashes_2019_by_county <- county_boundaries %>%
-  mutate(n_crashes = lengths(st_contains(., fatal_crashes_2019)))
-
 # Define color palette
 color_pal <- colorBin(
   "viridis",
@@ -333,36 +320,7 @@ frameWidget(choropleth)
 # Map with mini circle charts
 
 ```{r minicharts-single-var}
-# Find centroids of each county
-county_centroids <- st_centroid(county_boundaries) %>%
-  nest(data = geometry) %>%
-  mutate(coords = map(data, ~ as_tibble(st_coordinates(.x)))) %>%
-  unnest(coords) %>%
-  select(name, lng = X, lat = Y)
-
-# Compute fatal crash counts
-fatal_crash_counts_by_county_2019 <- list(
-  # overall counts
-  overall = fatal_crashes_2019 %>%
-    st_join(county_boundaries, st_within) %>%
-    count(name) %>%
-    rename(n_crashes = n) %>%
-    st_drop_geometry(),
-  # broken by season
-  by_season = fatal_crashes_2019 %>%
-    st_join(county_boundaries, st_within) %>%
-    count(name, season) %>%
-    rename(n_crashes = n) %>%
-    st_drop_geometry() %>%
-    pivot_wider(names_from = season, values_from = n_crashes)
-)
-
 # Create a leaflet map with minicharts
-minicharts_data <- county_centroids %>%
-  left_join(fatal_crash_counts_by_county_2019$overall, by = "name") %>%
-  left_join(fatal_crash_counts_by_county_2019$by_season, by = "name") %>%
-  replace_na(list(n_crashes = 0, summer = 0, winter = 0))
-
 minicharts_single_var <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
   addMinicharts(
@@ -397,24 +355,6 @@ frameWidget(minicharts_pie)
 # Map with mini bar charts
 
 ```{r mini-barcharts}
-cong_district_centroids <- st_centroid(cong_district_boundaries) %>%
-  nest(data = geometry) %>%
-  mutate(coords = map(data, ~ as_tibble(st_coordinates(.x)))) %>%
-  unnest(coords) %>%
-  select(district_id, lng = X, lat = Y)
-
-fatal_crash_counts_by_district_2019 <- fatal_crashes_2019 %>%
-  mutate(quarter = quarter(crash_date)) %>%
-  st_join(cong_district_boundaries, st_within) %>%
-  count(district_id, quarter) %>%
-  rename(n_crashes = n) %>%
-  st_drop_geometry()
-
-mini_barcharts_data <- cong_district_centroids %>%
-  left_join(fatal_crash_counts_by_district_2019, by = "district_id") %>%
-  mutate(quarter = str_c("Qtr", quarter, sep = "_")) %>%
-  pivot_wider(names_from = quarter, values_from = n_crashes)
-
 mini_barcharts <- basemap %>%
   addPolygons(
     data = cong_district_boundaries, 
@@ -437,34 +377,6 @@ frameWidget(mini_barcharts)
 # Animated map with mini circle charts
 
 ```{r mini-circles-animation}
-# Create a data frame of 99 counties times 12 months
-helper_data <- tibble(
-  name = rep(unique(county_boundaries$name), each = 12), 
-  crash_month = rep(
-    str_c(2019, str_pad(1:12, 2, pad = 0), sep = "-"), times = 99
-  )
-)
-
-# Compute 2019 fatal crashes by month for each county
-fatal_crash_counts_by_county_2019[["by_month"]] <- fatal_crashes_2019 %>%
-  mutate(crash_month = format_ISO8601(crash_date, precision = "ym")) %>%
-  st_join(county_boundaries, st_within) %>%
-  count(name, crash_month) %>%
-  rename(n_crashes = n) %>%
-  st_drop_geometry()
-
-# Create data for generating mini circle charts animation
-mini_circles_anim_data <- county_centroids %>%
-  left_join(
-    pluck(fatal_crash_counts_by_county_2019, "by_month"), by = "name"
-  ) %>%
-  right_join(helper_data, by = c("name", "crash_month")) %>%
-  arrange(name, crash_month) %>%
-  group_by(name) %>%
-  fill(lng, lat, .direction = "updown") %>%
-  ungroup() %>%
-  replace_na(list(n_crashes = 0))
-
 # Display the animation
 mini_circles_animation <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
@@ -484,34 +396,6 @@ frameWidget(mini_circles_animation)
 Weekday vs. Weekend fatal crashes
 
 ```{r mini-pies-animation}
-# Compute 2019 fatal crashes by month and type of day for each county
-fatal_crash_counts_by_county_2019[["by_month_daytype"]] <- fatal_crashes_2019 %>%
-  mutate(
-    crash_month = format_ISO8601(crash_date, precision = "ym"),
-    day_type = if_else(is_weekend == FALSE, "weekday", "weekend")
-  ) %>%
-  st_join(county_boundaries, st_within) %>%
-  count(name, crash_month, day_type) %>%
-  rename(n_crashes = n) %>%
-  st_drop_geometry() %>%
-  pivot_wider(names_from = day_type, values_from = n_crashes)
-
-# Create data for generating mini pie charts animation
-mini_pies_anim_data <- county_centroids %>%
-  left_join(
-    pluck(fatal_crash_counts_by_county_2019, "by_month"), by = "name"
-  ) %>%
-  left_join(
-    pluck(fatal_crash_counts_by_county_2019, "by_month_daytype"), 
-    by = c("name", "crash_month")
-  ) %>%
-  right_join(helper_data, by = c("name", "crash_month")) %>%
-  arrange(name, crash_month) %>%
-  group_by(name) %>%
-  fill(lng, lat, .direction = "updown") %>%
-  ungroup() %>%
-  replace_na(list(n_crashes = 0, weekday = 0, weekend = 0))
-
 # Display the animation
 mini_pies_animation <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
@@ -568,6 +452,4 @@ frameWidget(mini_pies_animation, height = 450)
 ```
 
 ]
-
-
 

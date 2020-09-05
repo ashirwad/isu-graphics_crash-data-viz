@@ -353,6 +353,64 @@ frameWidget(choropleth_normed, height = 450)
 ```
 
 ---
+# Map with side-by-side choropleth layers
+
+```{r choropleth-juxtaposed}
+choropleth_juxtaposed <- leaflet() %>%
+  addMapPane("left", zIndex = 0) %>%
+  addMapPane("right", zIndex = 0) %>%
+  addProviderTiles(
+    providers$CartoDB.Positron,
+    layerId = "carto-left-id",
+    options = pathOptions(pane = "left")
+  ) %>%
+  addProviderTiles(
+    providers$CartoDB.Positron,
+    layerId = "carto-right-id",
+    options = pathOptions(pane = "right")
+  )  %>%
+  addPolygons(
+    data = choropleth_data,
+    color = "white",
+    weight = 1.5,
+    opacity = 0.75,
+    fillColor = ~color_n_pal(n_crashes),
+    fillOpacity = 0.75,
+    dashArray = "2",
+    group = "choropleth",
+    options = pathOptions(pane = "left")
+  ) %>%
+  addPolygons(
+    data = choropleth_data,
+    color = "white",
+    weight = 1.5,
+    opacity = 0.75,
+    fillColor = ~color_rate_pal(crash_rate),
+    fillOpacity = 0.75,
+    dashArray = "2",
+    group = "choropleth-normed",
+    options = pathOptions(pane = "right")
+  ) %>%
+  addLegend(
+      data = choropleth_data,
+      position = "bottomleft",
+      pal = color_n_pal,
+      values = ~n_crashes,
+      group = "choropleth",
+    ) %>%
+  addLegend(
+      data = choropleth_data,
+      position = "bottomright",
+      pal = color_rate_pal,
+      values = ~crash_rate,
+      group = "choropleth-normed",
+    ) %>%
+  addSidebyside(leftId = "carto-left-id", rightId = "carto-right-id") %>%
+  addHomeButton(ext = st_bbox(state_boundary), group = "Zoom to Iowa")
+frameWidget(choropleth_juxtaposed)
+```
+
+---
 # Map with mini circle charts
 
 ```{r minicharts-single-var}

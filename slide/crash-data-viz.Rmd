@@ -478,7 +478,9 @@ frameWidget(mini_bars)
 # Animated map with mini circle charts
 
 ```{r mini-circles-animation}
-# Display the animation
+mini_circles_anim_data <- import(
+  here("data", "leaflet-mini-circles-anim-data.rds")
+)
 mini_circles_animation <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
   addMinicharts(
@@ -487,17 +489,16 @@ mini_circles_animation <- basemap %>%
     chartdata = mini_circles_anim_data$n_crashes,
     time = mini_circles_anim_data$crash_month,
     showLabels = TRUE
-  ) %>%
-  syncWith("minicharts")
+  )
 frameWidget(mini_circles_animation)
 ```
 
 ---
 # Animated map with mini pie charts
-Weekday vs. Weekend fatal crashes
+Weekday (purple) vs. Weekend (orange) fatal crashes
 
 ```{r mini-pies-animation}
-# Display the animation
+mini_pies_anim_data <- import(here("data", "leaflet-mini-pies-anim-data.rds"))
 mini_pies_animation <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
   addMinicharts(
@@ -510,14 +511,13 @@ mini_pies_animation <- basemap %>%
     width = 30 * sqrt(mini_pies_anim_data$n_crashes) / 
       sqrt(max(mini_pies_anim_data$n_crashes)),
     transitionTime = 0
-  ) %>%
-  syncWith("minicharts")
+  )
 frameWidget(mini_pies_animation, height = 450)
 ```
 
 ---
 # Animated map with side-by-side mini circle charts
-Same mini circle charts on both panes:
+Same mini circle charts on both panes
 
 .pull-left[
 

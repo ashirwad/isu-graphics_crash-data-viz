@@ -36,7 +36,10 @@ county_vmt_2019 <- import(
   setclass = "tibble"
 ) %>%
   rename(county_name = `County Name`, total_vmt = Total) %>%
-  mutate(county_name = str_to_title(county_name))
+  mutate(
+    county_name = str_to_title(county_name),
+    county_name = recode(county_name, "O Brien" = "O'Brien")
+  )
 
 
 ## Computation for each county
@@ -102,22 +105,25 @@ fatal_crash_counts_by_district_2019 <- fatal_crashes_2019 %>%
 choropleth_data <- fatal_crash_counts_by_county_2019 %>%
   pluck("rate_by_vmt") %>%
   right_join(county_vmt_2019, by = c("county_name", "total_vmt")) %>%
-  replace_na(list(n_crashes = 0, crash_rate = 0))
+  replace_na(list(n_crashes = 0, crash_rate = 0)) %>%
+  left_join(county_boundaries, by = "county_name") %>%
+  st_as_sf()
 
 export(choropleth_data, here("data", "leaflet-choropleth-data.rds"))
 
-# Data for mini circles chart
-mini_circles_data <- county_centroids %>%
+# Data for mini circles & pies chart
+mini_charts_data <- county_centroids %>%
   left_join(fatal_crash_counts_by_county_2019$overall, by = "county_name") %>%
   left_join(fatal_crash_counts_by_county_2019$by_season, by = "county_name") %>%
   replace_na(list(n_crashes = 0, summer = 0, winter = 0))
 
-export(mini_circles_data, here("data", "leaflet-mini-circles-data.rds"))
+export(mini_charts_data, here("data", "leaflet-mini-charts-data.rds"))
 
 # Data for mini bars chart
 mini_bars_data <- cong_district_centroids %>%
   left_join(fatal_crash_counts_by_district_2019, by = "district_id") %>%
   mutate(quarter_name = str_c("Qtr", quarter_num, sep = "_")) %>%
+  select(-quarter_num) %>%
   pivot_wider(names_from = quarter_name, values_from = n_crashes) %>%
   replace_na(list(Qtr_1 = 0, Qtr_2 = 0, Qtr_3 = 0, Qtr_4 = 0))
 

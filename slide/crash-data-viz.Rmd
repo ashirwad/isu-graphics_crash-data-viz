@@ -52,7 +52,14 @@ fatal_crashes_2019 <- filter(fatal_crashes, crash_year == 2019) %>%
     season = if_else(month %in% c(5:10), "summer", "winter")
   )
 
+# Get Iowa state, county, and congressional district boundaries
 state_boundary <- st_geometry(us_states(resolution = "high", states = "IA"))
+county_boundaries <- us_counties(resolution = "high", states = "IA") %>%
+  select(county_name = name)
+cong_district_boundaries <- us_congressional(
+  resolution = "high", states = "IA"
+) %>%
+  select(district_id = cd115fp)
 
 # Create a basemap
 basemap <- leaflet() %>%
@@ -413,58 +420,58 @@ frameWidget(choropleth_juxtaposed)
 ---
 # Map with mini circle charts
 
-```{r minicharts-single-var}
-# Create a leaflet map with minicharts
-minicharts_single_var <- basemap %>%
+```{r mini-circles}
+mini_charts_data <- import(here("data", "leaflet-mini-charts-data.rds"))
+mini_circles <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
   addMinicharts(
-    minicharts_data$lng, 
-    minicharts_data$lat,
-    chartdata = minicharts_data$n_crashes,
+    mini_charts_data$lng, 
+    mini_charts_data$lat,
+    chartdata = mini_charts_data$n_crashes,
     showLabels = TRUE
   )
-frameWidget(minicharts_single_var)
+frameWidget(mini_circles)
 ```
 
 ---
 # Map with mini pie charts
 
-```{r minicharts-pie}
-minicharts_pie <- basemap %>%
+```{r mini-pies}
+mini_pies <- basemap %>%
   addPolygons(data = county_boundaries, weight = 2, fill = FALSE) %>%
   addMinicharts(
-    minicharts_data$lng, 
-    minicharts_data$lat,
-    chartdata = select(minicharts_data, summer, winter),
+    mini_charts_data$lng, 
+    mini_charts_data$lat,
+    chartdata = select(mini_charts_data, summer, winter),
     type = "pie",
     colorPalette = c("#4fc13c", "#cccccc"),
-    width = 30 * sqrt(minicharts_data$n_crashes) / 
-      sqrt(max(minicharts_data$n_crashes)),
+    width = 30 * sqrt(mini_charts_data$n_crashes) / 
+      sqrt(max(mini_charts_data$n_crashes)),
     transitionTime = 0
   )
-frameWidget(minicharts_pie)
+frameWidget(mini_pies)
 ```
 
 ---
 # Map with mini bar charts
 
-```{r mini-barcharts}
-mini_barcharts <- basemap %>%
+```{r mini-bars}
+mini_bars_data <- import(here("data", "leaflet-mini-bars-data.rds"))
+mini_bars <- basemap %>%
   addPolygons(
-    data = cong_district_boundaries, 
-    color = "lightblue", 
+    data = cong_district_boundaries,
     weight = 2, 
     fill = FALSE
   ) %>%
   addMinicharts(
-    mini_barcharts_data$lng, 
-    mini_barcharts_data$lat,
-    chartdata = select(mini_barcharts_data, Qtr_1:Qtr_4),
+    mini_bars_data$lng, 
+    mini_bars_data$lat,
+    chartdata = select(mini_bars_data, Qtr_1:Qtr_4),
     colorPalette = viridis(4),
     width = 60, 
     height = 60
   )
-frameWidget(mini_barcharts)
+frameWidget(mini_bars)
 ```
 
 ---

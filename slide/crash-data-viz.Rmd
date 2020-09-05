@@ -1,7 +1,7 @@
 ---
-title: "Different Approaches to Crash Data Visualization"
+title: "Different Approaches to Crash Data Visualization using Leaflet"
 author: "Ashirwad Barnwal"
-date: "9/3/2020"
+date: "2020/09/03 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -9,6 +9,7 @@ output:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
+    seal: false
 ---
 
 ```{r setup, include = FALSE}
@@ -16,38 +17,43 @@ output:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 options(htmltools.dir.version = FALSE)
 
-# Load packages
+# Elegant handling of namespace conflicts
 library(conflicted)
+
+# Path & data handling
 library(here)
 library(tidyverse)
 conflict_prefer("filter", "dplyr")
 library(rio)
 library(lubridate)
 
-# Spatial analyses & visualization
+# Geospatial visualization
 library(USAboundaries)
 library(sf)
 library(leaflet)
 library(leaflet.extras)
 library(leaflet.extras2)
 library(leaflet.minicharts)
-library(mapview)
 library(leafem)
 library(leafsync)
 
+# For awesomeness :D
+library(fontawesome)
+library(emo)
+
+# Miscellaneous
+library(knitr)
 library(widgetframe)
 library(viridisLite)
-library(knitr)
 library(DT)
 library(default)
 default(frameWidget) <- list(height = 500)
 default(include_url) <- list(height = "475px")
-library(fontawesome)
-library(emo)
 
 # Import crash data
 fatal_crashes <- import(here("data", "ia-fatal-crashes-2015-19.rds"))
-fatal_crashes_2019 <- filter(fatal_crashes, crash_year == 2019) %>%
+fatal_crashes_2019 <-  fatal_crashes %>%
+  filter(crash_year == 2019) %>%
   mutate(
     month = month(crash_date),
     season = if_else(month %in% c(5:10), "summer", "winter")
@@ -68,6 +74,17 @@ basemap <- leaflet() %>%
   addPolygons(data = state_boundary, fill = FALSE, group = "Boundaries") %>%
   addHomeButton(ext = st_bbox(state_boundary), group = "Zoom to Iowa")
 ```
+
+layout: true
+
+---
+class: center, bottom
+background-image: url(../img/title-cover.png)
+background-size: cover
+
+# Crash Data Visualization using Leaflet
+
+.large[Ashirwad Barnwal | ISU Graphics Group | 2020-09-03 (updated: `r Sys.Date()`)]
 
 ---
 # Who am I?
@@ -124,8 +141,8 @@ End here:
 ---
 class: center, inverse, middle
 
-Enough of comic...  
-Let's get started with some serious data visualization!
+# Enough of humor...  
+# Let's get started with some serious data visualization!
 
 ![serious](https://media4.giphy.com/media/Fr51PdEf2NxOE/giphy.gif)  
 <div style='font-size:50%'>(Available at [http://gph.is/1qKXewI](http://gph.is/1qKXewI), Sep 02, 2020)</div>  
@@ -134,21 +151,21 @@ Let's get started with some serious data visualization!
 # What is Leaflet?
 
 ```{r leaflet-url}
-include_url("https://leafletjs.com/", height = "475px")
+include_url("https://leafletjs.com/")
 ```
 
 ---
 # Leaflet for R
 
 ```{r leaflet-rstudio-url}
-include_url("https://rstudio.github.io/leaflet/", height = "475px")
+include_url("https://rstudio.github.io/leaflet/")
 ```
 
 ---
 # What open data am I using?
 
 ```{r iowadot-opendata-url}
-include_url("https://public-iowadot.opendata.arcgis.com/", height = "475px")
+include_url("https://public-iowadot.opendata.arcgis.com/")
 ```
 
 ---
@@ -273,7 +290,7 @@ frameWidget(both_layers_control)
 
 ---
 # Map with synced heatmap layers
-Summer (L) vs. Winter (R) fatal crashes:
+Summer (L) vs. Winter (R) fatal crashes
 
 ```{r synced-heatmaps}
 heatmap_summer <- basemap %>%
@@ -288,7 +305,7 @@ synced_heatmaps <- sync(heatmap_summer, heatmap_winter)
 
 ---
 # Map with desynced heatmap layers
-Same heatmap on both left & right panes:
+Same heatmap on both left & right panes
 
 ```{r lattice-view}
 (
@@ -330,7 +347,7 @@ frameWidget(choropleth)
 ```
 
 ---
-# Map with a choropleth layer (crash_rate_by_vmt)
+# Map with a choropleth layer (crash rate by vmt)
 VMT: Vehicle Miles Traveled; Crash rate: Number of crashes per million VMT
 
 ```{r choropleth-normed}
@@ -357,7 +374,7 @@ choropleth_normed <- basemap %>%
       pal = color_rate_pal,
       values = ~crash_rate
     )
-frameWidget(choropleth_normed, height = 450)
+frameWidget(choropleth_normed, height = 400)
 ```
 
 ---
@@ -599,5 +616,7 @@ include_url("https://learn.arcgis.com/en/paths/mapping-and-visualization/")
 # Thank you. Stay safe, healthy, & responsible!
 Labor day, he is `r emo::ji("look")` at you!
 
+.center[
 ![covid+graph](https://media3.giphy.com/media/Qu1fT51CG14ksIkASL/giphy.gif)  
-<div style='font-size:50%'>(Available at [https://gph.is/g/Z7gwmOm](https://gph.is/g/Z7gwmOm), Sep 03, 2020)</div>  
+<div style='font-size:50%'>(Available at [https://gph.is/g/Z7gwmOm](https://gph.is/g/Z7gwmOm), Sep 03, 2020)</div>
+]

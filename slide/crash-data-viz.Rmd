@@ -29,6 +29,7 @@ library(lubridate)
 
 # Geospatial visualization
 library(USAboundaries)
+library(USAboundariesData)
 library(sf)
 library(leaflet)
 library(leaflet.extras)

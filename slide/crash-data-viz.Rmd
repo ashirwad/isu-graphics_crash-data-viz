@@ -41,6 +41,7 @@ library(knitr)
 library(DT)
 library(default)
 default(frameWidget) <- list(height = 500)
+default(include_url) <- list(height = "475px")
 library(fontawesome)
 library(emo)
 
@@ -554,3 +555,49 @@ frameWidget(mini_pies_animation, height = 450)
 
 ]
 
+---
+class: center, inverse, middle
+
+# Life outside R & Leaflet...
+
+---
+# Kepler.gl
+
+```{r keplergl}
+include_url("https://kepler.gl/")
+```
+
+---
+# Deck.gl
+
+```{r deckgl}
+include_url("https://deck.gl/")
+```
+
+---
+# Datawrapper
+
+```{r datawrapper}
+include_url("https://www.datawrapper.de/")
+```
+
+---
+# QGIS
+
+```{r qgis}
+include_url("https://qgis.org/en/site/")
+```
+
+---
+# ArcGIS Online
+
+```{r arcgis-online}
+include_url("https://learn.arcgis.com/en/paths/mapping-and-visualization/")
+```
+ 
+---
+# Thank you. Stay safe, healthy, & responsible!
+Labor day, he is `r emo::ji("look")` at you!
+
+![covid+graph](https://media3.giphy.com/media/Qu1fT51CG14ksIkASL/giphy.gif)  
+<div style='font-size:50%'>(Available at [https://gph.is/g/Z7gwmOm](https://gph.is/g/Z7gwmOm), Sep 03, 2020)</div>  

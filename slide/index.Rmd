@@ -1,5 +1,5 @@
 ---
-title: "Crash Data Visualization using Leaflet"
+title: "Crash Data Visualization Using Leaflet"
 author: "Ashirwad Barnwal"
 date: "2020/09/03 (updated: `r Sys.Date()`)"
 output:
@@ -83,7 +83,7 @@ class: center, bottom
 background-image: url(img/title-cover.png)
 background-size: cover
 
-# Crash Data Visualization using Leaflet
+# Crash Data Visualization Using Leaflet
 
 .large[Ashirwad Barnwal | ISU Graphics Group | 2020-09-03 (updated: `r Sys.Date()`)]
 
@@ -315,7 +315,7 @@ lattice_view <- latticeview(heatmap, heatmap)
 ```
 
 ---
-# Map with a choropleth layer (n_crashes)
+# Map with a choropleth layer
 
 ```{r choropleth}
 # Import data for choropleth map
@@ -348,8 +348,8 @@ frameWidget(choropleth)
 ```
 
 ---
-# Map with a choropleth layer (crash rate by vmt)
-VMT: Vehicle Miles Traveled; Crash rate: Number of crashes per million VMT
+# Map with a choropleth layer (normalized)
+**VMT**: Vehicle Miles Traveled; **Crash rate**: Number of crashes per million VMT
 
 ```{r choropleth-normed}
 # Define color palette
@@ -375,7 +375,7 @@ choropleth_normed <- basemap %>%
       pal = color_rate_pal,
       values = ~crash_rate
     )
-frameWidget(choropleth_normed, height = 400)
+frameWidget(choropleth_normed, height = 450)
 ```
 
 ---
@@ -615,9 +615,25 @@ include_url("https://learn.arcgis.com/en/paths/mapping-and-visualization/")
  
 ---
 # Thank you. Stay safe, healthy, & responsible!
-Labor day, he is `r emo::ji("look")` at you!
 
-.center[
-![covid+graph](https://media3.giphy.com/media/Qu1fT51CG14ksIkASL/giphy.gif)  
+.pull-left[
+
+Labor day, s/he is `r emo::ji("look")` at you!
+
+![covid+graph](https://media3.giphy.com/media/Qu1fT51CG14ksIkASL/giphy.gif)
 <div style='font-size:50%'>(Available at [https://gph.is/g/Z7gwmOm](https://gph.is/g/Z7gwmOm), Sep 03, 2020)</div>
+
+]
+
+.pull-right[
+
+**Acknowledgements**
+- [Yihui Xie](https://yihui.org/) for his [`xaringan`](https://CRAN.R-project.org/package=xaringan) package
+- Harry Zhu for his awesome leaflet ideas on his [GitHub repo](https://github.com/harryprince/awesome-leaflet)
+- [Ganesh Krishnan](https://www.linkedin.com/in/ganeshkrishnann/) & [ISU Graphics Group](https://isu-graphics.rbind.io/) for inviting me to give this talk
+
+**Closing remarks...**
+- Check out the [GitHub repo](https://github.com/ashirwad/isu-graphics_crash-data-viz) that powers these slides
+- License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+
 ]
